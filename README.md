@@ -20,9 +20,9 @@ int main()
     return 0;
 }
 ```
-以上代码会输出以下内容：
+以上代码会输出带有下划线的颜色为蓝色的：
 
-<u style="color: blue;">Hello world!</u>
+<u style="color: blue;">Hello OpenCIO!</u>
 
 ***
 ## OpenCIO的基本结构
