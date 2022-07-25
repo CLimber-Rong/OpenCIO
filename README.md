@@ -20,8 +20,10 @@ int main()
     return 0;
 }
 ```
-以上代码会输出以下内容：  
-<u style="color: Blue"><h3>Hello OpenCIO!<h3></u>
+以上代码会输出以下内容：
+
+<u style="color: blue;">Hello world!</u>
+
 ***
 ## OpenCIO的基本结构
 OpenCIO的结构可细分为：
