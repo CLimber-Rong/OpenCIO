@@ -1,7 +1,7 @@
 # ***OpenCIO***技术文档
-* 仓库地址：
+* 仓库地址：https://github.com/CLimber-Rong/OpenCIO
 ## 什么是OpenCIO
-<p id="SGR_CODE">OpenCIO是一个基于C++的，跨平台的，轻量级的控制台IO库，你可以利用它快速的实现控制台光标移动，输出彩色文本等功能，简化了巨大的工作量  
+<p id="SGR_CODE">OpenCIO，全称Open Console IO，是一个基于C++的，跨平台的，轻量级的控制台IO库，你可以利用它快速的实现控制台光标移动，输出彩色文本等功能，简化了巨大的工作量  
 让我们来举一个简单的案例</p>
 
 ```C++
@@ -29,7 +29,8 @@ int main()
 OpenCIO的结构可细分为：
 * SCM(Select Cursor Move,光标移动指令)
 * CLS(Clean Screen,清屏指令)
-* SGR(字符渲染指令)
+* SGR(Select Graphic Rendition,字符渲染指令)
+* KEL(Keyboard Event Listen,键盘事件侦听 该模块于1.2.2.0新增)
 ***
 ## OpenCIO的环境搭建和初始化
 ### 1.环境搭建
@@ -37,7 +38,7 @@ OpenCIO的环境搭建极其简单，有两种方法：
 1. 你只需要从仓库下载opencio.cpp这个文件，并把它放到你需要依赖opencio.cpp的源文件同目录即可。注意：以下的示例全部都是基于这种方法之上的
 2. 你也可以把他放到标准库路径中，但是我们不建议这么做。  
 
-* 仓库地址：
+* 仓库地址：https://github.com/CLimber-Rong/OpenCIO
 ### 2.初始化
 首先，你需要用以下代码初始化一个对象：
 ```c++
@@ -233,7 +234,61 @@ enum SelectGraphicRenditionMode{
 };
 ```
 ***
+## ***OpenCIO 1.2.2.0*** 版本更新特性
+### OpenCIO基本结构新增KEL模块
+#### 1. 什么是KEL？
+KEL，全称Keyboard Event Listen，键盘事件侦听，是1.2.2.0版本新增的模块，OpenCIO解决了键盘事件的不兼容性，通过整合实现了跨平台，让我们来举个例子：
+
+```C++
+#ifdef __WIN32__
+#include<windows.h>
+#else
+#include<unistd.h>
+#endif
+#include"opencio.cpp"
+#include"stdio.h"
+
+using namespace std;
+
+int main()
+{
+    /*此代码示例将每秒检测一次按键并输出*/
+    OpenCIO cio;    //实例化对象
+    #ifdef __WIN32__
+    cio.OpenANSIControl();      //如果是win32平台就开启虚拟终端实现初始化
+    #endif
+    while(true){
+        bool flag = cio.isKeyEvent();    //获取键盘事件
+        if(flag){
+            //flag=true说明键盘被按下
+            char c = cio.GetKeyEvent(); //获取按下的键盘ASCII码
+            if(c==0x1B) return 0;   //如果按下ESC键就推出，0x1B是ESC键的ASCII码
+            cout<<"一秒过去了，你按下了键盘，按下的键是"<<c<<endl;
+        }else{
+            cout<<"一秒过去了，你没有按下键盘"<<endl;
+            //flag=false说明键盘没有被按下
+        }
+        //接着进入休眠，但是休眠期间按下的按键依旧会被记录
+        #ifdef __WIN32__
+        Sleep(1000);
+        #else
+        sleep(1);
+        #endif
+    }
+    return 0;
+}
+```
+
+在此示例中，我们看到了本次更新的两个新接口，让我们来看一看：
+
+|方法原型|功能|
+|:-:|:-:|
+|bool isKeyEvent(void)|判断缓冲区内是否有键按下，非阻塞|
+|char GetKeyEvent(void)|向缓冲区读取一个按键，阻塞|
+
+其中，```isKeyEvent()```方法是非阻塞的，即不等待用户操作，立即返回结果，而```GetKeyEvent()```方法是阻塞的，即如果用户还没有按下键，就会一直等待直到用户按下任意键后返回ASCII码。  
+所以我们经常配合这两个接口使用，即用```isKeyEvent```检测是否有按键按下，如果有，就用```GetKeyEvent```读取这个按键，否则就之间略过，去做下一件事情。
+***
 ### 以上即为OpenCIO技术文档的全部，如有问题，欢迎发邮件至woshiquxiangrong@outlook.com，谢谢！
-————2022年7月25日
 ***
 # ***<center>OpenCIO</center>***

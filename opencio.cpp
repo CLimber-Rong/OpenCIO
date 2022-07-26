@@ -15,8 +15,14 @@
 /*Check the type of system*/
 #include<iostream>
 #ifdef __WIN32__
+//Win32 platform 
 #include <windows.h>
+#include<conio.h> 
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#else
+//linux/unix platform
+#include<curses.h>
+#include<termios.h>
 #endif
 #include <iostream>
 
@@ -83,6 +89,10 @@ typedef struct TERMINAL_CURSOR_POSITION_TPYE{
 }TerminalCursorPosition;
 
 class OpenCIO{
+	protected:
+		/*#ifndef __WIN32__
+		static struct termios initial_settings, new_settings;
+		static int peek_character = -1; */
 	public:
 		void CursorUp(unsigned row){	printf("%c[%dA",0x1B,row);	}
 		void CursorDown(unsigned row){	printf("%c[%dB",0x1B,row);	}
@@ -144,4 +154,18 @@ class OpenCIO{
 			return true;
 		}
 		#endif
+		//1.2.2.0
+		bool isKeyEvent(void)
+		{
+			#ifdef __WIN32__
+			return _kbhit();
+			#else
+			if(*stdin.buffer=='\0')	return false;
+			else					return true;
+			#endif
+		}
+		char GetKeyEvent(void)
+		{
+			return getch();
+		}
 };
